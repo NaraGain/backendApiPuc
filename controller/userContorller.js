@@ -8,18 +8,22 @@ const usersAll = async (req,res)=>{
  
     if (!user){
         return res.status(404).json({
-            message: "no user found!"
+            message: "no user found!",
+            success:false
         })
     }
     if (user.length == 0 ){
        return res.status(404).json({
-            message: "No record found"
+            message: "No record found",
+            success : false,
         })
     }
    
     res.status(200).json({
         data : user,
         name : req.body.name,
+        message : 'all user found',
+        success : true,
     
     })
 }
@@ -32,29 +36,62 @@ const findUser = async (req,res)=>{
   
     try {
         
-        const userId = await users?.findOne({_id: user_id})
-        if(!userId){
-            return res.status(404).json({message: `no user found here ...${user_id}`})
+        const user = await users?.findOne({_id: user_id})
+        if(!user){
+            return res.status(404).json({
+                    message: `no user found here ...${user_id}`,
+                    success : false,
+                })
         }
-        
-       return res.status(200).json({userId})
+       return res.status(200).json({
+                    message : 'user found',
+                    result :user,
+                    success : true
+    })
 
     } catch (error) {
-        res.status(500).json({message: `no user found ${error} ... ${user_id}`})
+        res.status(500).json({
+            message: `no user found ${error} ... ${user_id}`,
+            success : false
+        
+        })
+        
+    }
+}
+
+const findUserByName = async (req,res)=> {
+    try {
+        const userId = await users?.findOne({name: req.body.name})
+        if(!userId){
+            return res.status(404).json({
+                message: `no user found here`,
+                success : false,
+    
+            })
+        }
+        const { _id, name, email, role, createdAt, updatedAt, __v } = userId.toObject();
+        res.status(200).json({
+            _id,
+            name,
+            email,
+            role,
+            createdAt,
+            updatedAt,
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: `no user found ${error}`,
+            success:false,
+        })
         
     }
 }
 
 const createUser = async (req, res,next) =>{
-    let Users = new users({
-        name: req.body.name,
-        email : req.body.email,
-        password:req.body.password,
-        role:req.body.role,
-    }) 
-
+    let Users = new users(req.body) 
     try {
-        const userExists = await users.findOne({email:Users.email})
+        const userExists = await users.findOne({name:req.body.name})
         if (userExists){
             return res.status(500).json({
                 message: "user already exist",
@@ -72,14 +109,16 @@ const createUser = async (req, res,next) =>{
         if(Users){
             res.status(200).json(
                 {
-                    message: "create user successfully "
+                    message: "create user successfully ",
+                    success : true,
                     });
         }
         next()
 
     } catch (error) {
         res.status(401).json({
-            message: "error server could not response"
+            message: "error server could not response",
+            success: false,
     })
     }
 
@@ -152,7 +191,8 @@ const deleteUser = async (req,res)=>{
 
         if(!deleteUser){
             return res.status(404).json({
-                message : "Not Found user_id"
+                message : "Not Found user_id",
+                success : false,
             })
         }
 
@@ -190,6 +230,7 @@ const updateUser = async (req, res)=>{
         res.status(200).json({
             message : 'user update successfully',
             data : updateUser,
+            success :true,
         })
         
     } catch (error) {
@@ -211,7 +252,8 @@ const resetPassword = async (req ,res)=>{
          
         if(!userRestPassword){
           return  res.status(400).json({
-                message : "user does not exist"
+                message : "user does not exist",
+                success : false,
             })
         }
 
@@ -220,7 +262,7 @@ const resetPassword = async (req ,res)=>{
         if(!verify){
            return res.status(500).json({
                 message: "token not match a request",
-                success: false
+                success: false,
             })
         }
         
@@ -231,21 +273,25 @@ const resetPassword = async (req ,res)=>{
             {password : hashNewPassword} , {new:true})
         const successChange = userNewPassword.save()
         
-        if(successChange){
-            res.status(200).json({
-                message : "password have been reset please logout to validate",
-                success : true,
-            })
+        if(!successChange){
+          return  res.status(400).json({
+            message : "could not reset new password ",
+            success : false
+        })
         }
-
-
+        res.status(200).json({
+            message : "password have been reset please logout to validate",
+            success : true,
+        })
+       
     }catch(error){
         res.status(500).json({
-            message: "error server could not response"
+            message: "error server could not response",
+            success: false,
     })
     }
 }
 
 
 module.exports = {createUser, findUser,usersAll, 
-    loginUser , deleteUser , updateUser ,resetPassword}
+    loginUser , deleteUser , updateUser ,resetPassword , findUserByName}

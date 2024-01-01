@@ -3,46 +3,57 @@ const reports = require("../model/report")
 const fs = require('fs').promises
 const path = require('path')
 const students = require("../model/student")
+const files =  require('../model/file')
 
 const createReport = async (req,res) => {
     try {
         const report =  new reports(req.body)
-        const reportFind = await reports.findOne({user : req.body.user})
-        if(reportFind){
-            return res.status(401).json({
-                message : "report have been submit",
+        // const code = userId.user + examId.exam
+        const saveToReport = await report.save()
+
+        if(!saveToReport){
+          return  res.status(404).json({
+                message : `could't add to report`,
                 success : false,
             })
         }
-        const saveToReport = await report.save()
-
-        if(saveToReport){
-          return  res.status(200).json({
-                message : "add to report success",
-                success : true,
-            })
-        }
         
-        res.status(404).json({
-            message : `could't add to report`,
-            success : false,
+        res.status(200).json({
+            message : `report have submit`,
+            success : true,
         })
        
 
     } catch (error) {
         res.status(502).json({
-            message: "error server could not response"
+            message: "error server could not response",
+            error : error,
+            success: false,
           })
     }
 }
 
+//update file for wiriting section
 const uploadWritingFile = async (req,res) => {
     try {
             const file = req.files.file
             let fileName = file?.md5 + file?.name
             const uploadPath = path.join(__dirname , "../public/exam/" + `${fileName}`)
-            await file.mv(uploadPath)
 
+           const Files = new files({
+            path :{
+                url : `/${fileName}`,
+                type : `${file.mimetype}`
+            }, name : "exam"}) 
+
+            await file.mv(uploadPath)
+            const saveToFile = await Files.save()
+            if(!saveToFile){
+                return res.status(401).json({
+                    message : 'could not upload file',
+                    success: false,
+                })
+            }
             res.status(200).json({
                 message : "upload true",
                 path : `/${fileName}`,
@@ -102,8 +113,8 @@ const getReportByExamId = async(req , res)=>{
 
     }else{
         reportFind = await reports
-        .findOne({user : req.body.userId})
-        .populate('user').populate('exam')
+        .find({user : req.body.userId})
+       
 
     }
    
@@ -128,6 +139,30 @@ const getReportByExamId = async(req , res)=>{
    }
 }
 
+
+const findReportOneById = async (req,res)=>{
+    try {
+        const report = await reports.findOne({_id : req.params.id})
+        if(!report){
+          return  res.status(404).json({
+                message : `could't find report`,
+                success : false,
+            })
+        }
+
+
+        res.status(200).json({
+            message : 'report found',
+            success : true,
+            result : report,
+        })
+    } catch (error) {
+        res.status(502).json({
+            message: "error server could not response"
+          })
+    }
+}
+
 const getAllReport  = async (req,res)=>{
     try {
         const {examName , userName} = req.body
@@ -142,7 +177,7 @@ const getAllReport  = async (req,res)=>{
 }
 
 const updateReport = async (req,res) => {
-    // try {
+    try {
         
         const findResult = await reports.findOne({user : req.body.stuId})
         const get = findResult.result.findIndex(object => object.subjectName == req.body.name)
@@ -173,12 +208,12 @@ const updateReport = async (req,res) => {
             success : false,
         }) 
 
-    // } catch (error) {
-    //     res.status(401).json({
-    //         message : "error server could not response",
-    //     })
-    // }
+    } catch (error) {
+        res.status(401).json({
+            message : "error server could not response",
+        })
+    }
 }
 
 
-module.exports = {createReport , uploadWritingFile , getReportByExamId , updateReport}
+module.exports = {createReport , uploadWritingFile , getReportByExamId , updateReport ,findReportOneById}

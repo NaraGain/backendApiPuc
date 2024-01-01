@@ -178,26 +178,33 @@ const deleteQuiz = async (req,res)=>{
         const {id : sub_id} = req.params
         const {eid : exam_id} = req.params
         const exams = await exam.findOne({_id : exam_id})
-        const getSubjectName = exams.quiz.remove(sub_id)
+        const quizs = await quiz.findOne({_id : sub_id})
 
-        if(getSubjectName){
-            await exams.save()
-            var quizs = await quiz.findByIdAndDelete({_id: sub_id})
-        }
 
-        if(quizs){
-            for(let i = 0 ;i < questions.question.length ; i++){
-                await questions.findByIdAndDelete(quizs.question[i])
-            }
-        }
-        
-        if(!quiz){
-            return res.status(401).json({
-                message : "could not remove quiz from exam",
+        if(quizs.question.length){
+            return res.status(400).json({
+                message : "quiz is not empty",
                 success : false,
             })
+        }else{
+            const getSubjectName = exams.quiz.remove(sub_id)
+            if(getSubjectName){
+                await exams.save()
+            }
+            var deleteQuiz = await quiz.findByIdAndDelete({_id: sub_id})
+            if(!deleteQuiz){
+                return res.status(401).json({
+                    message : "could not remove quiz from exam",
+                    success : false,
+                })
+            }
+            // if(quizs){
+            //     for(let i = 0 ;i < questions.question.length ; i++){
+            //         await questions.findByIdAndDelete(quizs.question[i])
+            //     }
+            // }
         }
-
+        
        res.status(200).json({
             message : "subject have been remove from exam",
             success : true,

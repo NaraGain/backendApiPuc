@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema({
         type:String,
         require:true,
     },
+    address :{
+        type:String,
+        require : false,
+    },
+   phone :{
+    type :String,
+    require : true
+    },
     role:{
         type:Array,
         require:true

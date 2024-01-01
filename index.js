@@ -23,6 +23,7 @@ const fileUpload = require('express-fileupload');
 const { clearInterval } = require('timers');
 const server = http.createServer(app)
 const io = socketIO(server)
+const startCountdown = require("./External/timer")
 
 
 app.use(cors())
@@ -56,45 +57,35 @@ app.use("/quiz" , quizRoute)
 app.use("/question", questionRoute)
 app.use("/address", addressRoute)
 app.use("/report" ,reportRoute)
+app.post("/exam/start",
+ auth , checkRole(["superadmin","admin"]),
+ (req, res)=>{
+   try {
+     io.emit('startTimer', 
+     startCountdown(req.body.minutes,
+      req.body.seconds,io))
+      res.status(200).json({
+        message : "Exam Start",
+        success : true,
+      })
+   } catch (error) {
+      res.status(400).json({
+        message : "error internal server could not response",
+        success : false,
+      })
+   }
+})
 
-
-
-
+// startCountdown(10,0 ,io)
 
 server.setMaxListeners(0)
-function startCountdown(minutes, seconds) {
-    let totalSeconds = minutes * 60 + seconds;
-  
-    const timer = setInterval(() => {
-      const minutes = Math.floor(totalSeconds / 60);
-      let remainingSeconds = totalSeconds % 60;
-  
-      // Add leading zero if seconds is less than 10
-      if (remainingSeconds < 10) {
-        remainingSeconds = `0${remainingSeconds}`;
-      }
-  
-      io.emit('countdown', { minutes, remainingSeconds });
-  
-      totalSeconds--;
-  
-      if (totalSeconds < 0) {
-        clearInterval(timer);
-        io.emit('countdownFinished');
-      }
-    }, 1000); // Update every second (1000 milliseconds)
-  }
-  
   // Socket.IO connection
   io.on('connection', (socket) => {
-    console.log('Client connected', socket.id);
     // Start countdown when the client requests it
     socket.on('startCountdown', ({ minutes, seconds }) => {
-      startCountdown(minutes, seconds);
+      startCountdown(minutes, seconds , io);
     });
   });
-
-  startCountdown(45,0)
 
   __dirname = path.resolve()
   if(process.env.NODE_ENV === 'production'){

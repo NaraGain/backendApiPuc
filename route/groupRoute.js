@@ -11,12 +11,12 @@ const {auth, checkRole} = require("../middleware/auth")
 
 
 route.get('/' ,getGroup)
-route.post('/create',auth , checkRole(['Owner','admin',"staff"]), createGroup)
+route.post('/create',auth , checkRole(['superadmin','admin',"staff"]), createGroup)
 route.post('/', findGroupById)
-route.delete('/delete/:id', checkRole(['Owner', 'admin']), deleteGroup)
-route.patch('/update/:id', checkRole(["Owner", 'admin']), updateGroup)
-route.post("/post", createTest)
-route.post("/student/query", studentQueryGroup)
+route.delete('/delete/:id',auth, checkRole(['superadmin', 'admin']), deleteGroup)
+route.patch('/update/:id', auth,checkRole(["superadmin", 'admin']), updateGroup)
+route.post("/post",auth, createTest)
+route.post("/student/query", auth, studentQueryGroup)
 
 
 module.exports = route
