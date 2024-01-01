@@ -18,7 +18,7 @@ const auth = async (req,res,next)=>{
         next()
     }catch(e){
         res.status(401).json({
-            message: "Unauthorized user",
+            message:  'unknow error',
         })
     }
 }
@@ -28,32 +28,11 @@ const checkRole = (role)=> {
         try {
             const {name}  = req.body.user
             const User = await users.findOne({name})
-            var result = false
-            //check user role array
-            for(var i = 0 ; i<role.length ; i++){
-                for(var j =0; j<User.role.length ; j++){
-                    if(role[i] !== User.role[i]){
-                        result = false
-                        continue
-                  
-                    }else{
-                        result = true
-                        break
-                  
-                    }
-                }
-                if(result){
-                    break
-                }else{
-                    i++
-                    continue
-                }
-            }
-
-           if(role.includes(User.role.toString())){  
+            //check user role
+           if(role.includes(User?.role.toString())){  
                next()
            }else{
-               res.status(401).json({message:false})
+               res.status(401).json({message: "unsupport role"})
            }   
         } catch (error) {
             res.status(500).json({

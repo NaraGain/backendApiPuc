@@ -6,13 +6,17 @@ const examSchema = new mongoose.Schema({
         type : String,
         require :true,
     },
-    startDate :{
-        type : String,
+    date :{
+        type : Date,
         require : true
     },
-    endDate :{
-        type : String,
+    time :{
+        type : Date,
         require : true
+    },
+    end : {
+        type : Date,
+        require : true,
     },
     pass_score :{
         type : Number,
@@ -22,12 +26,17 @@ const examSchema = new mongoose.Schema({
         type : Number,
         default : null,
     },
-    time :{
+    duration :{
         type : Number,
+        default:55,
     },
     course : {
         type : String,
         require : true
+    },
+    onfinish : {
+        type : Boolean,
+        default : false,
     },
     description : {
         type : String,

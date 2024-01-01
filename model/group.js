@@ -25,7 +25,7 @@ const groupSchema = new mongoose.Schema({
             require : true,
     },
     time : {
-         type: [String],
+         type: [Date],
          require : true
     },
     exam : [

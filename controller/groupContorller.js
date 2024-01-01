@@ -3,42 +3,53 @@ const test = require('../model/test')
 const exams = require("../model/quiz")
 
 
-
-
-
 const getGroup = async (req,res)=>{
-    const groups = await group.find({})
+
+    try {
+        const groups = await group.find({})
 
     if(!groups){
         return res.status(404).json({
-            message : 'not found groups'
+            message : 'not found groups',
+            success : false
         })
     }
 
     if (groups.length == 0 ){
         return res.status(404).json({
-            message : "No record found"
+            message : "No record found",
+            success : false,
         })
     }
 
-    res.status(200).json({groups})
+    res.status(200).json({
+        message : 'fetch group...',
+        groups : groups,
+        success : true
+    })
+
+    
+    } catch (error) {
+        res.status(502).json({
+            message: "error server could not response",
+            success : false,
+        })
+    }
+    
 
 }
 
 
+
 const studentQueryGroup =  async (req,res)=>{
-
     try {
-        
-        const groups = await group.findOne({group : req.body.courseName})
-
+        const groups = await group.findOne({group : req.body.courseName}).populate('exam')
         if(!groups){
             return res.status(404).json({
                 message : "Not Found course name",
                 success : false,
             })
         }
-
         res.status(200).json({
             message : "query successfully",
             success : true,
@@ -46,18 +57,19 @@ const studentQueryGroup =  async (req,res)=>{
 
         }) 
     } catch (error) {
-        
+        res.status(502).json({
+            message: "error server could not response",
+            success : false,
+        })
     }
-
-
 }
 
 const findGroupById = async (req,res)=>{
 
     try {
         const g_id = req.body.id
-        
-        const groups = await group.findOne({_id : g_id}).populate('exam').populate('student')
+        const groups = await group.findOne({_id : g_id})
+        .populate('exam').populate('student')
 
         if (!groups){
             return res.status(404).json({
@@ -169,8 +181,14 @@ const deleteGroup = async (req,res)=>{
 
         const {id: g_id} = req.params
         
+        const findGroup = await group.findOne({_id : g_id})
+        if(findGroup?.exam.length !==0 && findGroup?.student.length !== 0){
+                return res.status(400).json({
+                    message : 'group is not empty',
+                    success : false,
+                })
+        }else{
         const deleteGroup = await group.findByIdAndDelete({_id : g_id})
-
         if(deleteGroup.exam){
             for (let i = 0 ;i <deleteGroup.exam.length; i++){
                 await exams.findByIdAndDelete(deleteGroup.exam[i])
@@ -183,6 +201,7 @@ const deleteGroup = async (req,res)=>{
                 success : false,
             })
         }
+    }
     
         res.status(200).json({
             message : "course have been remove",

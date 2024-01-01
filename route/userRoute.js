@@ -10,21 +10,22 @@ const {
     loginUser,
     deleteUser,
     updateUser,
-    resetPassword
+    resetPassword,
+    findUserByName
     
 } = require('../controller/userContorller')
 const { auth, checkRole } = require('../middleware/auth')
 
-route.get("/",auth ,checkRole(['Owner', "admin"]),usersAll)
-route.get('/:id',findUser)
-
-route.post("/register",auth, checkRole(['Owner','admin']), createUser)
+route.get("/",auth ,usersAll)
+route.get('/:id', auth ,findUser)
+route.post('/username',auth, findUserByName)
+route.post("/register",auth, checkRole(['superadmin','admin']), createUser)
 route.post("/login", loginUser)
-route.patch('/reset-password/:id' ,auth, checkRole(['admin']), resetPassword)
+route.patch('/reset-password/:id' ,auth, checkRole(['superadmin','admin']), resetPassword)
 
-route.patch("/update/:id",auth, checkRole(["Owner","admin"]), updateUser)
+route.patch("/update/:id",auth, checkRole(["superadmin","admin"]), updateUser)
 
-route.delete("/:id",auth, checkRole(["Owner"]),deleteUser)
+route.delete("/:id",auth, checkRole(["superadmin"]),deleteUser)
 
 
 module.exports = route

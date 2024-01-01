@@ -13,7 +13,7 @@ return mongoose.connect(url,{
 }).then(()=>{
     console.log("Connected to Database is Successfully")
 }).catch( err => {
-    console.log("Cannot connect to the database " , err)
+    console.log("Cannot connect to the database ")
 })
 }
 

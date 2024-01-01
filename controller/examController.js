@@ -16,22 +16,29 @@ const getExam = async (req,res)=>{
 
         if(!exams){
             return res.status(404).json({
-                message : "not found exam"
+                message : "not found exam",
+                success : false,
             })
         }
 
         if (exams.length < 1){
 
             return res.status(404).json({
-                message : "No record found"
+                message : "No record found",
+                success : false,
             })
         }
       
-        res.status(200).json({exams})
+        res.status(200).json({
+                result : exams,
+                message : "record found",
+                success : true
+            })
         
     } catch (error) {
         res.status(502).json({
-            message : "error Internal server could not response."
+            message : "error Internal server could not response.",
+            success : false,
         })
     }
 
@@ -60,6 +67,15 @@ try {
 }
 
 }
+
+const startExam = async (req,res)=> {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
 
 const finedQuestionById = async (req,res)=>{
    try {
@@ -101,7 +117,8 @@ const createExam = async (req,res,next)=>{
 
         if(groups.exam.length > 10){
             return res.status(404).json({
-                message : "You could not create more than 10"
+                message : "You could not create more than 10",
+                success:false
             })
         }else{
             const saveToGroup = await groups.save()
@@ -118,23 +135,17 @@ const createExam = async (req,res,next)=>{
     } catch (error) {
         res.status(502).json({
             message: "error server could not response",
-            error_case : new Error()
+            error_case : new Error(),
+            success: false
           })
         
     }
 }
 
-const testPost = async(req,res,next)=>{
-    try {
-       
-    } catch (error) {
-        console.log(error)
-    }
-}
 
 const updateExam = async (req,res)=>{
     try {
-        const exams = await exam.findByIdAndUpdate({_id :req.body.id}, {new:true})
+        const exams = await exam.findByIdAndUpdate({_id :req.params.id}, req.body ,{new:true})
 
         if(!exams){
             return res.status(400).json({
@@ -146,6 +157,7 @@ const updateExam = async (req,res)=>{
         res.status(200).json({
             message : 'quiz update successfully',
             data : exams,
+            success:true,
         })
 
     } catch (error) {
@@ -160,26 +172,30 @@ const deleteExam = async (req,res)=>{
     try {
 
         const {id : e_id , course : course} = req.params
-        const groups = await group.findOne({group: course})
-            const slice =  groups.exam.remove(e_id)
-            if(slice){
-                await groups.save()  
-                var exams = await exam.findByIdAndDelete({_id: e_id}) 
-                        
-             }
-        if(exams){
-            for(let i = 0 ;i < exams.quiz.length ; i++){
-                await questions.findByIdAndDelete(exams.question[i])
-            }
-        }
-        
-        if(!exams){
-            return res.status(401).json({
-                message : "could not romve",
+        const groups = await group.findOne({group: course})    
+        const exams = await exam.findOne({_id : e_id})
+        let deleteExam = ''
+        if(exams.quiz.length !== 0 ){  
+            //return response it not working now i wiil try to fix later   
+            return res.status(400).json({
+                message : "could not delete exam please in delete quiz first",
                 success : false
             })
-        }
+        }else{
+          const removeExamFormGroup =  groups.exam.remove(e_id)     
+          if(removeExamFormGroup){
+            await groups.save()  
+            deleteExam = await exam.findByIdAndDelete({_id: e_id}) 
+          }
 
+          if(!deleteExam){
+            return res.status(400).json({
+                message : "could not delete exam",
+                success : false,
+            })
+          }
+        }     
+     
         res.status(200).json({
             message : "exam have been remove",
             success : true,
@@ -195,6 +211,6 @@ const deleteExam = async (req,res)=>{
 
 
 
+
 module.exports = {getExam ,
-    testPost,
     findExamById, finedQuestionById, createExam , deleteExam , updateExam}

@@ -1,6 +1,7 @@
 const exam = require("../model/exam")
 const question = require("../model/question")
 const quiz = require("../model/quiz")
+const files = require('../model/file')
 const fs = require('fs').promises
 const path = require('path')
 
@@ -104,15 +105,22 @@ const testuploadfile = async (req,res ,next)=>{
        const file = req.files.file
        let fileName = file?.md5 + file?.name
        const uploadPath = path.join(__dirname , '../public/upload/' + `${fileName}`)
-
         const {id : q_id} = req.params
         const quizs = await quiz.findOne({_id : q_id})
         const questionUpload = await new question({
             upload : {path : `/${fileName}` , type : file.mimetype},
             subId : q_id,
-        },
-         
-        )
+        },)
+
+        const Files = new files({
+            path : {
+                url : `/${fileName}`,
+                type : `${file.mimetype}`
+            },
+            name : `question`,
+        })
+
+
         if(!quizs){
             return res.status(401).json({
                 message : "could not find subject name",
@@ -122,6 +130,7 @@ const testuploadfile = async (req,res ,next)=>{
         const questionUploadSave = await questionUpload.save()
         quizs.question.push(questionUploadSave._id)
         const saveQuestionToSubject = await quizs.save()
+        const saveToFile = await Files.save()
         if(!saveQuestionToSubject){
             return res.status(401).json({
                 message : "could not save to subject name",
@@ -192,6 +201,28 @@ const createQuestion = async (req,res,next)=>{
 }
 
 const questionUpdate = async (req,res,next)=>{
+    try {
+        const findQuestion = await question.findByIdAndUpdate({_id : req.params.qid} 
+            , req.body, {new:true})
+
+         if(!findQuestion){
+            return res.status(401).json({
+                message : "unable to update question",
+                success : false 
+            })
+         }   
+
+         res.status(200).json({
+            message : "update question successfully",
+            success : true,
+         })
+
+    } catch (error) {
+        res.status(502).json({
+            message: "error server could not response",
+            success: false
+        })
+    }
 
 }
 
@@ -203,13 +234,18 @@ const questionUpdate = async (req,res,next)=>{
 
         const findSubject = await quiz.findOne({_id : s_id})
         const removeQuestion = await findSubject.question.remove(q_id)
-
         if(removeQuestion){
-            await findSubject.save()
             var deleteQuestion = await question.findOneAndRemove({_id : req.params.id})
             if(deleteQuestion?.upload){
-                await fs.unlink(path.join(__dirname), '../public/upload', deleteQuestion?.upload)
+                await fs.unlink(path.join(__dirname , '../public/upload/', deleteQuestion?.upload.path))
+            }else{
+               return res.status(400).json({
+                    message : "coulud not delete file",
+                    success : false
+                })
             }
+            await findSubject.save()
+            
         }
 
         if(!deleteQuestion){
@@ -239,4 +275,4 @@ const questionUpdate = async (req,res,next)=>{
 
 
 module.exports = {getQuestion , getQuestionById, createQuestion, deleteQuestion,
-     testuploadfile , getQuestionByPage}
+     testuploadfile , getQuestionByPage , questionUpdate}
