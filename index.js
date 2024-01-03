@@ -4,7 +4,6 @@ const cors = require('cors');
 // const fileUpload = require('express-fileupload')
 const app = express();
 const http = require('http')
-const socketIO = require('socket.io')
 const  { connectionDb } = require('./connection')
 const path = require('path')
 const userRoute = require('./route/userRoute')
@@ -22,8 +21,8 @@ const addressRoute = require("./route/addressRoute")
 const fileUpload = require('express-fileupload');
 const { clearInterval } = require('timers');
 const server = http.createServer(app)
-const io = socketIO(server)
 const startCountdown = require("./External/timer")
+const socketIO = require('socket.io')
 
 
 app.use(cors())
@@ -40,6 +39,14 @@ app.use(
       safeFileNames : false,
     }),
   );
+
+ const io = socketIO(server, {
+    cors : {
+      originAdmin : process.env.ORIGIN_ADMIN,
+      originStudent : process.env.ORIGIN_STUDENT
+    }
+  })
+  
 
 app.get("/auth-endpoint", auth, (req,res)=>{
     res.status(200).json({

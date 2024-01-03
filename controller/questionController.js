@@ -14,22 +14,29 @@ try {
 
     if(!getQuestion){
         return res.status(404).json({
-            message : "not found exam"
+            message : "not found exam",
+            success : false,
         })
     
     }
 
     if(getQuestion.length < 1){
         return res.status(404).json({
-            message : "No record found"
+            message : "No record found",
+            success : false,
         })
     }
 
-     res.status(200).json({getQuestion})
+     res.status(200).json({
+        message : 'report found',
+        result : getQuestion,
+        success : true,
+    })
     
 } catch (error) {
     res.status(502).json({
-        message: "error server could not response"
+        message: "error server could not response",
+        success : false,
       
     })
 }
@@ -230,35 +237,34 @@ const questionUpdate = async (req,res,next)=>{
 
     try {
 
-        const {id:q_id , subId : s_id} = req.params
+       const findSection = await quiz.findOne({_id : req.params.subId})
 
-        const findSubject = await quiz.findOne({_id : s_id})
-        const removeQuestion = await findSubject.question.remove(q_id)
-        if(removeQuestion){
-            var deleteQuestion = await question.findOneAndRemove({_id : req.params.id})
-            if(deleteQuestion?.upload){
-                await fs.unlink(path.join(__dirname , '../public/upload/', deleteQuestion?.upload.path))
-            }else{
-               return res.status(400).json({
-                    message : "coulud not delete file",
-                    success : false
-                })
-            }
-            await findSubject.save()
-            
+        if(findSection?.question.length !== 0){
+          const removeQuestonId =  findSection?.question.remove(req.params.id)
+          if(removeQuestonId){
+            await findSection.save()
+          }    
         }
-
-        if(!deleteQuestion){
+               
+        const removeQuestion =   ''
+        await question.findByIdAndDelete({_id : req.params.id})
+        if(removeQuestion?.upload){
+            await fs.unlink(path.join(__dirname , '../public/upload/', deleteQuestion?.upload.path))
+        }else{
+            return res.status(400).json({
+                message : "question on file",
+                success : false
+            })
+        }
+        if(!removeQuestion){
             return res.status(404).json({
                 message : "question is not match",
                 success : false,
             })
         }
-        const questions = await quiz.findOne({_id : s_id}).populate('question')
         res.status(200).json({
             message : "question have been remove",
             success : true,
-            result : questions,
         })
 
     }catch (error) {

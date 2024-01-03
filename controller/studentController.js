@@ -78,11 +78,25 @@ const queryQuestion = async (req,res)=> {
                 success : false,
             })
         }
+        //question before response to cleint
+        const stortSectionByTitle 
+        = studentExam.sort((a,b)=>{
+            const titleA = a.title.toLowerCase()
+            const titleB = b.title.toLowerCase()
+            if(titleA < titleB){
+                return -1
+            }else if (titleA > titleB){
+                return 1
+            }else{
+                return 0
+            }
+        })
 
+        //create random question and option to user //
         res.status(200).json({
             message : "fetched data",
             success : true,
-            result : studentExam
+            result : stortSectionByTitle
         })
 
     } catch (error) {

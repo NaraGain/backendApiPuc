@@ -1,15 +1,17 @@
 const express = require('express')
 const { getQuiz, findQuizById, createQuiz, deleteQuiz,
-     quizQueryByExamId } = require('../controller/quizController')
+     quizQueryByExamId, 
+     updateQuiz} = require('../controller/quizController')
 const route = express.Router()
+const {auth} = require('../middleware/auth')
 
 
-
-route.get("/", getQuiz)
-route.get("/:id", findQuizById)
+route.get("/",auth, getQuiz)
+route.get("/:id",auth, findQuizById)
 route.post("/create/:id", createQuiz)
-route.post('/', quizQueryByExamId)
-route.delete('/delete/:id/:eid', deleteQuiz)
+route.post('/',auth, quizQueryByExamId)
+route.patch('/update/:id',auth, updateQuiz)
+route.delete('/delete/:id/:eid',auth, deleteQuiz)
 
 
 

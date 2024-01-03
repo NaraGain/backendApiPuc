@@ -73,7 +73,8 @@ try {
 
     if(!quizs){
         return res.status(404).json({
-            message : "Exam is not found"
+            message : "Exam is not found",
+            success:falsem
         })
     }
 
@@ -83,37 +84,14 @@ try {
     
 } catch (error) {
     res.status(502).json({
-        message : "error Internal server could not response."
+        message : "error Internal server could not response.",
+        success:false,
     })
 }
 
 }
 
-const finedQuestionById = async (req,res)=>{
-   try {
-        const {id : e_id} = req.params
-    
-        const quizs = await quizs.findById({_id : e_id}).populate('question')
-        const returnQuestion = quizs.question
-        const getQuestion = returnQuestion.map((i)=> {return i})
-    
-        if(!exams){
-            return res.status(404).json({
-                message : "Exam is not found"
-            })
-        }
-    
-        res.status(200).json({
-             getQuestion
-        })
-        
-    } catch (error) {
-        res.status(502).json({
-            message : "error Internal server could not response."
-        })
-    }
 
-}
 
 
 const createQuiz = async (req,res,next)=>{
@@ -141,7 +119,8 @@ const createQuiz = async (req,res,next)=>{
     } catch (error) {
         res.status(502).json({
             message: "error server could not response",
-            error_case : new Error()
+            error_case : new Error(),
+            success:false,
           })
         
     }
@@ -150,7 +129,8 @@ const createQuiz = async (req,res,next)=>{
 
 const updateQuiz = async (req,res)=>{
     try {
-        const exams = await exam.findByIdAndUpdate({_id :req.body.id}, {new:true})
+        const exams = await quiz.
+        findByIdAndUpdate({_id :req.params.id},req.body, {new:true})
 
         if(!exams){
             return res.status(400).json({
@@ -162,6 +142,7 @@ const updateQuiz = async (req,res)=>{
         res.status(200).json({
             message : 'quiz update successfully',
             data : exams,
+            success : true,
         })
 
     } catch (error) {
@@ -179,9 +160,9 @@ const deleteQuiz = async (req,res)=>{
         const {eid : exam_id} = req.params
         const exams = await exam.findOne({_id : exam_id})
         const quizs = await quiz.findOne({_id : sub_id})
+        
 
-
-        if(quizs.question.length){
+        if(quizs.question.length !== 0){
             return res.status(400).json({
                 message : "quiz is not empty",
                 success : false,
@@ -198,11 +179,7 @@ const deleteQuiz = async (req,res)=>{
                     success : false,
                 })
             }
-            // if(quizs){
-            //     for(let i = 0 ;i < questions.question.length ; i++){
-            //         await questions.findByIdAndDelete(quizs.question[i])
-            //     }
-            // }
+           
         }
         
        res.status(200).json({
@@ -221,4 +198,5 @@ const deleteQuiz = async (req,res)=>{
 
 
 
-module.exports = {getQuiz,createQuiz,updateQuiz,deleteQuiz , findQuizById, quizQueryByExamId}
+module.exports = {getQuiz,createQuiz,updateQuiz,deleteQuiz , 
+    findQuizById, quizQueryByExamId}
