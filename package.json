@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test" : "mocha --reporter mocha-junit-reporter --timeout 60000 --exit",
+    "test" : "mocha test.js --reporter mocha-junit-reporter --timeout 60000 --exit",
     "server": "nodemon index.js"
   },
   "author": "",
