@@ -18,12 +18,18 @@ describe('Server Tests', ()=>{
               done();
             })
         })
+        function yourFunctionToTest(num){
+            if(num !== 1){
+                return 'faild'
+            }
+            return num
+        }
         // Test case to check another functionality
     it('should do something else', function () {
         // Your test logic here
         // For example, check the output of a function or a module
-        const result = yourFunctionToTest(/* pass your test parameters */);
-        assert.strictEqual(result, /* expected result */);
+        const result = yourFunctionToTest(1);
+        assert.strictEqual(result,1);
       });
     })
     server.close()
