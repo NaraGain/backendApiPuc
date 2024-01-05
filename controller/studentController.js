@@ -68,6 +68,60 @@ const getStudentById = async (req,res)=>{
     }
 }
 
+//perpare for question exam by server by date of date time on course 
+const studentQueryGroup = async (req,res)=>{
+    try {
+        const groups = await group.findOne({group : req.body.courseName})
+        .populate('exam').populate('student')
+        if(!groups){
+            return res.status(404).json({
+                message : "Not Found course name",
+                success : false,
+            })
+        }
+        const currentDate = new Date()
+        const groupInfo = {
+            _id : groups._id ,
+            group :groups.group,
+            room  : groups.class,
+            teacher:groups.teacher,
+            level : groups.level,
+        }
+
+        const studentInfo = groups.student.map(({_id ,firstname 
+              ,lastname,username})=> {
+            return {_id , firstname , lastname ,username }
+        })
+    
+        const filterExam = groups.exam.filter((exam ,key)=>{
+            const examDate = new Date(exam.date)
+            const examTime = new Date(exam?.time)
+            return examDate.toLocaleDateString() == currentDate.toLocaleDateString() 
+            && exam?.onfinish == false
+            && examTime.getHours() === currentDate.getHours()
+            && examTime.getMinutes() <= exam?.duration + 1
+           
+        })
+   
+       
+
+        res.status(200).json({
+            message : "query successfully",
+            success : true,
+            result : groupInfo,
+            exam   : filterExam,
+            student : studentInfo,
+    
+
+        }) 
+    } catch (error) {
+        res.status(502).json({
+            message: "error server could not response",
+            success : false,
+        })
+    }
+}
+
 const queryQuestion = async (req,res)=> {
     try {
         const studentExam = await quizs.find({ExamId : req.body.examId})
@@ -204,14 +258,7 @@ const loginStudent = async (req,res , next) =>{
 }
 
 
-// const studentQueryGroupExam = async () =>{
-//     try {
-//         const
-//         const studentExam = await exam.findOne({startDate})
-//     } catch (error) {
-        
-//     }
-// }
+
 
 const updateStudent = async (req,res,next)=>{
         try {
@@ -319,4 +366,4 @@ const removeStudent = async (req,res) => {
 module.exports =
  {getStudent , createStudent ,
  loginStudent, getStudentById ,
-  queryQuestion ,removeStudent , updateStudent ,resetPasswordStudent}
+  queryQuestion ,removeStudent , updateStudent ,resetPasswordStudent , studentQueryGroup}

@@ -163,18 +163,7 @@ const findReportOneById = async (req,res)=>{
     }
 }
 
-const getAllReport  = async (req,res)=>{
-    try {
-        const {examName , userName} = req.body
-        const Exam = await exams.findOne({
-            
-        })
-    } catch (error) {
-        res.status(401).json({
-            message : "error server could not response",
-        })
-    }
-}
+
 
 const updateReport = async (req,res) => {
     try {
@@ -186,6 +175,7 @@ const updateReport = async (req,res) => {
         if(get !== -1){
           findResult.result[get].markPoint = req.body.markPoint
             let status = ""
+            //init req.body markPoint for upload 12.5
             if(req.body.markPoint < 12.5){
                 status = "failed"
             }else {

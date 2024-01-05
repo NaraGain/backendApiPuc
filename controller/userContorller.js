@@ -69,7 +69,8 @@ const findUserByName = async (req,res)=> {
     
             })
         }
-        const { _id, name, email, role, createdAt, updatedAt, __v } = userId.toObject();
+        const { _id, name, email, role, createdAt, updatedAt, __v } 
+        = userId.toObject();
         res.status(200).json({
             _id,
             name,
