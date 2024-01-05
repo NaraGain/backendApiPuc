@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha index.js",
+    "test" : "mocha index.js",
     "server": "nodemon index.js"
   },
   "author": "",
@@ -22,7 +22,7 @@
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22",
-    "mocha": "^3.2.0" 
+    "mocha": "^10.2.0",
+    "nodemon": "^2.0.22"
   }
 }
