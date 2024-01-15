@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test" : "mocha --timeout 60000 --exit",
+    "test": "mocha --timeout 60000 --exit",
     "server": "nodemon index.js"
   },
   "author": "",
@@ -17,6 +17,7 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "mongodb": "^5.5.0",
     "mongoose": "^7.5.0",
     "socket.io": "^4.7.2"

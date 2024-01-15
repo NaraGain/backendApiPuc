@@ -3,6 +3,7 @@ const { getExam, createExam, deleteExam,
      findExamById, finedQuestionById,
     updateExam, 
     assignExamToGroup,
+    startExam,
     removeExamFormGroup} = require('../controller/examController')
 const { auth, checkRole } = require('../middleware/auth')
 const route = express.Router()

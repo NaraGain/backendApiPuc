@@ -9,6 +9,7 @@
 <body>
     <h1>Countdown Timer</h1>
     <div id="countdown"></div>
+    <div id="timer"></div>
     <script>
       const socket = io();
   
@@ -16,7 +17,13 @@
         const countdownDiv = document.getElementById('countdown');
         countdownDiv.innerHTML = `Time remaining: ${minutes}:${remainingSeconds}`;
       });
-  
+     
+      socket.on('startTimer', ({hours:1, minutes:50 , seconds : 0}));
+
+      socket.on('updateTimer', (remainingTime) => {
+      document.getElementById('timer').innerText = `Time remaining: ${remainingTime} seconds`;
+    });
+
       socket.on('countdownFinished', () => {
         const countdownDiv = document.getElementById('countdown');
         countdownDiv.innerHTML = 'Countdown Finished!';

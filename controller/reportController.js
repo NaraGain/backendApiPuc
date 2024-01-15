@@ -97,11 +97,27 @@ const getReportByExamId = async(req , res)=>{
             const { markPoint, subjectName, status } = results[j];
             // Add subject marks to the summary object
             summaryObject[subjectName] = markPoint == undefined ? 0 : markPoint;
-            totalMarks += parseInt(markPoint);
+            totalMarks += parseFloat(markPoint);
           }
           // Add total marks and status to the summary object
-          summaryObject.total = totalMarks ? totalMarks : 0;
-          summaryObject.status = 'failed'; // Assuming status is 'failed' for the sake of example 
+          totalMarks = totalMarks ? totalMarks : 0
+          summaryObject.total = parseFloat(totalMarks);
+          let grade = '';
+           if (parseFloat(totalMarks) >= 90.0){
+            grade = 'A';
+          }else if (parseFloat(totalMarks) >= 80.9){
+            grade = 'B';
+          }else if (parseFloat(totalMarks) >= 70.9){
+            grade = 'C';
+          }else if (parseFloat(totalMarks) >= 60.9){
+            grade = 'D';
+          }else if(parseFloat(totalMarks) >= 50.9){
+            grade = 'E';
+          }else{
+            grade = 'F';
+          }
+          summaryObject.grade = grade;
+          summaryObject.status = 'FAILED'; // Assuming status is 'failed' for the sake of example u
           // Push the summary object to the userSummaries array
           userSummaries.push(summaryObject);
         }
@@ -175,8 +191,9 @@ const updateReport = async (req,res) => {
         if(get !== -1){
           findResult.result[get].markPoint = req.body.markPoint
             let status = ""
+            const sectionScore = req.body.sectionScore / 2
             //init req.body markPoint for upload 12.5
-            if(req.body.markPoint < 12.5){
+            if(parseFloat(req.body.markPoint) <= parseFloat(sectionScore)){
                 status = "failed"
             }else {
                 status = "pass"
@@ -205,5 +222,31 @@ const updateReport = async (req,res) => {
     }
 }
 
+const deleteReport = async (req,res)=> {
+    try {
+        
+        const report = await reports.findByIdAndDelete({_id : req.params.id})
 
-module.exports = {createReport , uploadWritingFile , getReportByExamId , updateReport ,findReportOneById}
+        if(!report) {
+            return res.status(401).json({
+                message : "could not delete report.",
+                success : false,
+            })
+        }
+
+        res.status.json({
+            message : "report delete sucessfully",
+            success : true,
+            result : report,
+        })
+
+
+    } catch (error) {
+        res.status(401).json({
+            message : "error server could not response",
+            success : false,
+        })
+    }
+}
+
+module.exports = {createReport , uploadWritingFile , getReportByExamId , updateReport ,findReportOneById , deleteReport}

@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs")
 const group = require("../model/group")
 const quizs = require("../model/quiz")
 const exam = require('../model/exam')
-
+const lodash = require('lodash')
 
 
 const getStudent = async (req,res)=>{
@@ -146,11 +146,33 @@ const queryQuestion = async (req,res)=> {
             }
         })
 
+        const copyData = [...stortSectionByTitle]
+
         //create random question and option to user //
+        const shuffleOptions = (questions) => {
+                return questions.map(question => {
+                    const shuffleOptions = lodash.shuffle(question.options)
+
+                    return {
+                        ...question,
+                        options : shuffleOptions,
+                    }
+                })
+        }
+        
+        const shuffleExam = copyData.map(exam => {
+            return {
+                ...exam,
+                question : shuffleOptions(exam.question),
+            }
+        })
+
+       
+
         res.status(200).json({
             message : "fetched data",
             success : true,
-            result : stortSectionByTitle
+            result : stortSectionByTitle,
         })
 
     } catch (error) {

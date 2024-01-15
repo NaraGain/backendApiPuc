@@ -19,7 +19,6 @@ const questionRoute = require('./route/questionRoute');
 const studentRoute = require("./route/studentRoute")
 const addressRoute = require("./route/addressRoute")
 const fileUpload = require('express-fileupload');
-const { clearInterval } = require('timers');
 const server = http.createServer(app)
 const startCountdown = require("./External/timer")
 const socketIO = require('socket.io')
@@ -72,7 +71,7 @@ app.post("/exam/start",
      startCountdown(req.body.minutes,
       req.body.seconds,io))
       res.status(200).json({
-        message : "Exam Start",
+        message : "exam start",
         success : true,
       })
    } catch (error) {
@@ -83,7 +82,6 @@ app.post("/exam/start",
    }
 })
 
-// startCountdown(10,0 ,io)
 
 server.setMaxListeners(0)
   // Socket.IO connection
@@ -116,4 +114,4 @@ const start = async ()=>{
 
 start()
 
-module.exports = server;
+

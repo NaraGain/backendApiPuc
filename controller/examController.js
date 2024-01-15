@@ -1,7 +1,9 @@
+
 const exam = require("../model/exam");
 const group = require("../model/group");
 const questions = require("../model/question")
-
+const {io} = require('../index.js')
+const startCountdown = require("../External/timer");
 
 
 var generateRandomNDigits = (n) => {
@@ -69,10 +71,20 @@ try {
 }
 
 const startExam = async (req,res)=> {
-    try {
-        
+    try { 
+             startCountdown(req.body.minutes,
+              req.body.seconds)
+              res.status(200).json({
+                message : "exam start",
+                success : true,
+              })  
+
     } catch (error) {
-        
+        res.status(400).json({
+            message : "error internal server could not response",
+            success : false,
+            errors : error ,
+          })
     }
 }
 
@@ -284,5 +296,5 @@ const removeExamFormGroup = async (req,res)=>{
 
 
 module.exports = {getExam ,
-    findExamById, finedQuestionById, createExam ,
+    findExamById, finedQuestionById, createExam ,startExam,
      deleteExam ,assignExamToGroup, updateExam , removeExamFormGroup}
