@@ -245,18 +245,19 @@ const questionUpdate = async (req,res,next)=>{
             await findSection.save()
           }    
         }
-               
-        const removeQuestion =   ''
-        await question.findByIdAndDelete({_id : req.params.id})
-        if(removeQuestion?.upload){
-            await fs.unlink(path.join(__dirname , '../public/upload/', deleteQuestion?.upload.path))
+        
+       
+        
+        const deleteQuestion = await question.findByIdAndDelete({_id : req.params.id})
+        if(deleteQuestion?.upload){
+            await fs.unlink(path.join(__dirname , '../public/upload/', deleteQuestion?.upload?.path))
         }else{
             return res.status(400).json({
                 message : "question on file",
                 success : false
             })
         }
-        if(!removeQuestion){
+        if(!deleteQuestion){
             return res.status(404).json({
                 message : "question is not match",
                 success : false,

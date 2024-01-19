@@ -10,6 +10,10 @@ const reportSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'exam',
     },
+    course : {
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'group',
+    },
     result: {
       type: Object,
       required: true,

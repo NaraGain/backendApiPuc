@@ -59,7 +59,9 @@ try {
     }
 
     res.status(200).json({
-         exams
+        message : "exam found",
+        success : true,
+        result:exams
     })
     
 } catch (error) {
@@ -157,7 +159,8 @@ const createExam = async (req,res,next)=>{
 
 const updateExam = async (req,res)=>{
     try {
-        const exams = await exam.findByIdAndUpdate({_id :req.params.id}, req.body ,{new:true})
+        const exams = await exam.
+        findByIdAndUpdate({_id :req.params.id}, req.body ,{new:true})
         if(!exams){
             return res.status(400).json({
                 message : 'could not update user something was wrong.',
@@ -179,40 +182,29 @@ const updateExam = async (req,res)=>{
     }
 }
 
-const assignExamToGroup = async (req,res) => {
+const assignSectionToExam = async (req,res) => {
     try {
-        const groups = await group.findOne({group : req.body.oldCourse})
-        if(groups){
-            await groups.exam.remove(req.params.id)
-            await groups.save()
+        const findExam = await exam.findOne({name : req.body.exam_name})
+        
+        if(!findExam){
+            return res.status(401).json({
+                message : 'exam are not exist',
+                success : false,
+            })
         }
-       
-        const updateExams = await exam.findByIdAndUpdate({_id : req.params.id},
-             {course : req.body.newGroup}, {new :true})
+
+        await findExam.quiz.push(req.body.quiz_id) 
+        const saveToExam = await findExam.save()
+
+        if(!saveToExam){
+            return res.status(401).json({
+                message : 'could not clone section',
+                success : false,
+            })
+        }  
         //add new id to new group
-        const newGroups = await group.findOne({group : req.body.newGroup})
-        if(newGroups){
-           const found = newGroups.exam.find((element)=> element === req.params.id)
-           if(found === req.params.id){
-               return res.status(400).json({
-                message :'exam is exist in groups',
-                success : false,
-            })
-           }else{
-            await newGroups.exam.push(req.params.id)
-            await newGroups.save() 
-           }
-        }
-
-        if(!updateExams){
-          return  res.status(400).json({
-                message : 'could not assign exam to groups',
-                success : false,
-            })
-        }
-
         res.status(200).json({
-            message : 'successfully',
+            message : 'successfully to clone section',
             success : true,
         })
 
@@ -297,4 +289,4 @@ const removeExamFormGroup = async (req,res)=>{
 
 module.exports = {getExam ,
     findExamById, finedQuestionById, createExam ,startExam,
-     deleteExam ,assignExamToGroup, updateExam , removeExamFormGroup}
+     deleteExam ,assignSectionToExam, updateExam , removeExamFormGroup}

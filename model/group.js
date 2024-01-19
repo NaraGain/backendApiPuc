@@ -30,7 +30,7 @@ const groupSchema = new mongoose.Schema({
     },
     exam : [
     {
-        type : mongoose.Schema.Types.ObjectId,
+        type :mongoose.Schema.ObjectId,
         ref : 'exam'
     }
     ],

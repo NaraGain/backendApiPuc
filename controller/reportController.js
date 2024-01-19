@@ -37,7 +37,7 @@ const createReport = async (req,res) => {
 const uploadWritingFile = async (req,res) => {
     try {
             const file = req.files.file
-            let fileName = file?.md5 + file?.name
+            let fileName = file?.md5 + `studentexam`
             const uploadPath = path.join(__dirname , "../public/exam/" + `${fileName}`)
 
            const Files = new files({
@@ -67,7 +67,7 @@ const uploadWritingFile = async (req,res) => {
 }
 
 
-const getReportByExamId = async(req , res)=>{
+const getReportByGroupAndStudent = async(req , res)=>{
    try {
     let reportFind = ""
     const userSummaries = [];
@@ -88,7 +88,8 @@ const getReportByExamId = async(req , res)=>{
           // Create a summary object for the user
           const summaryObject = {
             _id: user._id,
-            username: user.username,
+            name: user?.firstname + " " + user?.lastname,
+            gender : user?.gender,
           };    
           // Initialize total marks for the user
           let totalMarks = 0;
@@ -125,15 +126,43 @@ const getReportByExamId = async(req , res)=>{
         const sortkeys = Object.keys(results).sort()
         sortkeys.forEach(key => {
             results[key] = results[key]
-        })
+        })  
 
     }else{
-        reportFind = await reports
-        .find({user : req.body.userId})
-       
+        if(req.body.course){
+            reportFind = await reports
+            .find({course : req.body.course}).populate('exam')
 
+            const items = reportFind.map((items,key)=> 
+            ({
+                _id : items?._id,
+                user : items?.user,
+                course : items?.course,
+                exam_title : items?.exam?.name,
+                exam_date : items?.exam?.date
+
+            })
+        )  
+        reportFind = items
+        }else{
+            reportFind = await reports
+            .find({user : req.body.userId}).populate('exam')
+            
+           const items = reportFind.map((items,key)=> 
+                ({
+                    _id : items?._id,
+                    user : items?.user,
+                    course : items?.course,
+                    exam_title : items?.exam?.name,
+                    exam_date : items?.exam?.date
+
+                })
+            )  
+            reportFind = items
+        }
+        
+        
     }
-   
     if(!reportFind){
         return res.status(400).json({
             message : "not report found",
@@ -144,8 +173,8 @@ const getReportByExamId = async(req , res)=>{
 
    res.status(200).json({
         message : "report found",
-        result : req.body.examId ? userSummaries : reportFind,
         success : true,
+        result : req.body.examId ? userSummaries : reportFind,
     })  
     
    } catch (error) {
@@ -183,7 +212,7 @@ const findReportOneById = async (req,res)=>{
 
 const updateReport = async (req,res) => {
     try {
-        
+        //update by point to student_id and exam_id
         const findResult = await reports.findOne({user : req.body.stuId})
         const get = findResult.result.findIndex(object => object.subjectName == req.body.name)
         let updateReport = ''
@@ -224,7 +253,7 @@ const updateReport = async (req,res) => {
 
 const deleteReport = async (req,res)=> {
     try {
-        
+        //delete report by report_id
         const report = await reports.findByIdAndDelete({_id : req.params.id})
 
         if(!report) {
@@ -249,4 +278,6 @@ const deleteReport = async (req,res)=> {
     }
 }
 
-module.exports = {createReport , uploadWritingFile , getReportByExamId , updateReport ,findReportOneById , deleteReport}
+module.exports = {
+    createReport , uploadWritingFile , getReportByGroupAndStudent
+    , updateReport ,findReportOneById , deleteReport}

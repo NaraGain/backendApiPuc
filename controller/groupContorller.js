@@ -41,31 +41,7 @@ const getGroup = async (req,res)=>{
 
 
 
-const studentQueryGroup =  async (req,res)=>{
-    try {
-        const groups = await group.findOne({group : req.body.courseName}).populate('exam')
-        if(!groups){
-            return res.status(404).json({
-                message : "Not Found course name",
-                success : false,
-            })
-        }
-        res.status(200).json({
-            message : "query successfully",
-            success : true,
-            result : groups
-
-        }) 
-    } catch (error) {
-        res.status(502).json({
-            message: "error server could not response",
-            success : false,
-        })
-    }
-}
-
 const findGroupById = async (req,res)=>{
-
     try {
         const g_id = req.body.id
         const groups = await group.findOne({_id : g_id})
@@ -77,7 +53,58 @@ const findGroupById = async (req,res)=>{
                 success : false,
             })
         }
-        res.status(200).json({groups})
+
+        const items = {
+            _id : groups._id,
+            group : groups.group,
+            class : groups.class,
+            teacher : groups.teacher,
+            level : groups.level,
+            time : groups.time,
+            exam : groups.exam.map((exam ,key)=> ({
+                index : key,
+                _id : exam._id,
+                name : exam?.name,
+                pass_score : exam.pass_score,
+                key : exam.key,
+                course : exam.course,
+                quiz : exam.quiz.length,
+                description : exam.description,
+                duration : exam.duration,
+                date : exam.date,
+                time : exam?.time,
+                onfinish : exam?.onfinish,
+                createdAt : exam?.createdAt,
+                updatedAt :exam?.updatedAt,
+
+            })),
+            student : groups.student.map((student,key)=> ({
+                index : key,
+                _id : student?._id,
+                firstname : student?.firstname,
+                lastname : student?.lastname,
+                username : student?.username,
+                email : student?.email,
+                gender : student?.gender,
+                address : student?.address,
+                personalPhone : student?.personalPhone,
+                parentPhone : student?.parentPhone,
+                dateBirth : student?.dateBirth,
+                courseName : student?.courseName,
+                createdAt : student?.createdAt,
+                description : student?.description,
+            }))
+
+
+            
+        }
+
+
+        res.status(200).json({
+            message : 'groups founds',
+            success : true,
+            groups : items
+        })
 
     } catch (error) {
         res.status(502).json({
@@ -219,7 +246,6 @@ const deleteGroup = async (req,res)=>{
 module.exports = {
     getGroup ,createGroup, findGroupById ,
     deleteGroup , createTest , updateGroup,
-    studentQueryGroup,
 
 }
 

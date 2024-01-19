@@ -14,6 +14,10 @@ const studentSchema = new mongoose.Schema({
         type : String,
         require : true,
     },
+    gender :{
+        type :String,
+        default : "optional"
+    },
     email : {
         type : String,
         require : true,

@@ -46,10 +46,24 @@ const quizQueryByExamId = async (req,res) =>{
             success : false,
         })
      }
+
+     const sectionItems = queryQuiz.map((items, key)=> (
+        {
+            key : key,
+            _id : items?._id,
+            title : items?.title,
+            type : items?.type,
+            question : items?.question,
+            score : items?.score,
+            created : items?.createdAt,
+
+        }
+     ))
+
      res.status(200).json({
         message : "query quiz successfully",
         success : true,
-        result :queryQuiz,
+        result :sectionItems,
         })
         
  } catch (error) {
