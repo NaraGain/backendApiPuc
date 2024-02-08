@@ -124,6 +124,7 @@ const studentQueryGroup = async (req,res)=>{
 
 const queryQuestion = async (req,res)=> {
     try {
+        const exams = await exam.findOne({_id : req.body.examId})
         const studentExam = await quizs.find({ExamId : req.body.examId})
         .populate('question')
         if(!studentExam){
@@ -172,6 +173,7 @@ const queryQuestion = async (req,res)=> {
         res.status(200).json({
             message : "fetched data",
             success : true,
+            title : exams.name,
             result : stortSectionByTitle,
         })
 

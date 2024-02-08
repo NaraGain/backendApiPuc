@@ -103,8 +103,6 @@ const createUser = async (req, res,next) =>{
         const hashPassword = await bcrypt.hash(Users.password, salt)
         Users.password = hashPassword
         
-
-
         Users = Users.save()
 
         if(Users){
@@ -128,18 +126,13 @@ const createUser = async (req, res,next) =>{
 
 const loginUser = async (req,res ,next) =>{
         try {
-
-
             const {name} = req.body
             const Users = await users.findOne({name})
-
-
             if(!Users){
                 return res.status(400).json({
                     message : 'user name does not exits',
                     success : false
-                })
-                
+                })       
             }
             const vailPassword = await bcrypt.compare(
                 req.body.password,

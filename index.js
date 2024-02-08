@@ -29,6 +29,7 @@ app.use(express.json())
 app.use(errorHandlerMiddleware)
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname , './public/upload')))
+app.use(express.static(path.join(__dirname , './public/logo')))
 app.use(express.static(path.join(__dirname , './public/exam')))
 app.use(express.static("./public/html"))
 app.use(
