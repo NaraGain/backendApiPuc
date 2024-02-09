@@ -188,6 +188,7 @@ const getReportByGroupAndStudent = async(req , res)=>{
 const findReportOneById = async (req,res)=>{
     try {
         const report = await reports.findOne({_id : req.params.id})
+        .populate('user').populate('exam')
         if(!report){
           return  res.status(404).json({
                 message : `could't find report`,
@@ -199,7 +200,22 @@ const findReportOneById = async (req,res)=>{
         res.status(200).json({
             message : 'report found',
             success : true,
-            result : report,
+            result : {
+               _id : report?._id,
+               exam : {
+                title : report?.exam?.name,
+                date : report?.exam?.date
+               },
+               students : {
+                firstname : report?.user?.firstname,
+                _id : report?.user._id,
+                lastname: report?.user?.lastname ,
+                username : report?.user?.username,
+                course : report?.user.courseName,
+            },
+            result : report?.result
+
+            }
         })
     } catch (error) {
         res.status(502).json({
